@@ -50,10 +50,10 @@ public class BinaryHeapPriorityQueue<T> {
         HeapArray = new Entry[size];
     }
 
-    public void maxHeapify( Entry[] array, int i) {
+    public void maxHeapify( Entry<T>[] array, int i) {
         int left = childLeft(i);
         int right = childRight(i);
-        int largest = 0;
+        int largest;
         if ((left <= heapSize) && (array[left].getKey() > array[i].getKey())) {
             largest = left;
         }
@@ -64,16 +64,16 @@ public class BinaryHeapPriorityQueue<T> {
             largest = right;
         }
         if (largest != i) {
-            Entry temp = array[i];
+            Entry<T> temp = array[i];
             array[i] = array[largest];
             array[largest] = temp;
             maxHeapify(array, largest);
         }
     }
 
-    public T heapMaximum() {
+    public Object heapMaximum() {
         if (heapSize > 0) {
-            return (T) HeapArray[1].getValue();
+            return HeapArray[1].getValue();
         } else {
             throw new ArithmeticException("Error Underflow");
         }
@@ -83,20 +83,22 @@ public class BinaryHeapPriorityQueue<T> {
         if(heapSize < 1) {
             throw new ArithmeticException("Error Underflow");
         }
-        Entry max = HeapArray[1];
+        Entry<T> max = HeapArray[1];
         HeapArray[1] = HeapArray[heapSize];
         heapSize--;
         maxHeapify(HeapArray, 1);
         return max;
     }
 
-    public void heapIncreaseKey(Entry[] array, int i,Entry currentEntry) {
+    //public void IncreaseKey(T value, int key){}
+
+    public void heapIncreaseKey(Entry<T>[] array, int i,Entry<T> currentEntry) {
         if (currentEntry.getKey() < array[i].getKey()) {
             throw new ArithmeticException("New key is smaller than current key.");
         }
         array[i] = currentEntry;
         while((i > 1) && (array[parentPosition(i)].getKey() < array[i].getKey())){
-            Entry temp = array[i];
+            Entry<T> temp = array[i];
             array[i] = array[parentPosition(i)];
             array[parentPosition(i)] = temp;
             i = parentPosition(i);
@@ -104,11 +106,12 @@ public class BinaryHeapPriorityQueue<T> {
     }
 
     public void heapInsert(T value, int key) {
-        Entry newEntry = new Entry(value, key);
-        Entry placeHolderEntry = new Entry(value, (int) Double.NEGATIVE_INFINITY);
+        Entry<T> newEntry = new Entry<T>(value, key);
+        Entry<T> placeHolderEntry = new Entry<T>(value, (int) Double.NEGATIVE_INFINITY);
         heapSize++;
         if(heapSize >= HeapArray.length){
-            Entry[] NewHeapArray = Arrays.copyOf(HeapArray, (HeapArray.length*2));
+            Entry<T>[] NewHeapArray;
+            NewHeapArray = Arrays.copyOf(HeapArray, (HeapArray.length*2));
             HeapArray = NewHeapArray;
         }
         HeapArray[heapSize] = placeHolderEntry;
@@ -131,9 +134,41 @@ public class BinaryHeapPriorityQueue<T> {
         return heapSize;
     }
 
-//    public static void main(String[] args) {
+    static class Entry<T> {
+
+        private T value;
+        private int key;
+
+        public Entry(T value, int key) {
+            this.value = value;
+            this.key = key;
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        public int getKey() {
+            return key;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
+
+        public void setKey(int key) {
+            this.key = key;
+        }
+
+        public String toString() {
+            return "value = " + this.getValue() + ", key = " + this.getKey();
+        }
+    }
+
+
+    public static void main(String[] args) {
 //        BinaryHeapPriorityQueue newQueue = new BinaryHeapPriorityQueue();
-//        newQueue.heapInsert("2", 2);
+//        newQueue.heapInsert("2", 2000);
 //        newQueue.heapInsert("3", 3);
 //        newQueue.heapInsert("8", 8);
 //        newQueue.heapInsert("4", 4);
@@ -149,35 +184,12 @@ public class BinaryHeapPriorityQueue<T> {
 //            }
 //            System.out.println("\n" + newQueue.heapExtractMax().getValue());
 //        }
-//    }
-}
-class Entry<T> {
+//        System.out.println(Math.pow(2, Math.ceil(((Math.log(32))/2))));
+//        System.out.println(Math.floor(((Math.log(32))/2)));
+//        int u = (int) Math.ceil(Math.sqrt(32));
+//        System.out.println(u);
+        System.out.println((Integer) null);
 
-    private T value;
-    private int key;
-
-    public Entry(T value, int key) {
-        this.value = value;
-        this.key = key;
     }
 
-    public T getValue() {
-        return value;
-    }
-
-    public int getKey() {
-        return key;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    public void setKey(int key) {
-        this.key = key;
-    }
-
-    public String toString() {
-        return "value = " + this.getValue() + ", key = " + this.getKey();
-    }
 }
