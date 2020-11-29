@@ -31,8 +31,6 @@
  *************************************************************************/
 package com.akamenev.assignment1;
 
-import java.util.Arrays;
-
 public class BinaryHeapPriorityQueue<T> {
 
     //default number of elements that can be stored in Heap
@@ -71,9 +69,9 @@ public class BinaryHeapPriorityQueue<T> {
         }
     }
 
-    public Object heapMaximum() {
+    public T heapMaximum() {
         if (heapSize > 0) {
-            return HeapArray[1].getValue();
+            return (T) HeapArray[1].getValue();
         } else {
             throw new ArithmeticException("Error Underflow");
         }
@@ -90,17 +88,24 @@ public class BinaryHeapPriorityQueue<T> {
         return max;
     }
 
-    //public void IncreaseKey(T value, int key){}
+    public void IncreaseKey(T value, int key){
+        int min = 1;
+        int max = heapSize;
+        int range = (max - min) + 1;
+        int positionInArray = (int)(Math.random() * range) + min;
+        Entry<T> currentEntry = new Entry<>(value, key);
+        heapIncreaseKey(positionInArray ,currentEntry);
+    }
 
-    public void heapIncreaseKey(Entry<T>[] array, int i,Entry<T> currentEntry) {
-        if (currentEntry.getKey() < array[i].getKey()) {
+    public void heapIncreaseKey(int i,Entry<T> currentEntry) {
+        if (currentEntry.getKey() < HeapArray[i].getKey()) {
             throw new ArithmeticException("New key is smaller than current key.");
         }
-        array[i] = currentEntry;
-        while((i > 1) && (array[parentPosition(i)].getKey() < array[i].getKey())){
-            Entry<T> temp = array[i];
-            array[i] = array[parentPosition(i)];
-            array[parentPosition(i)] = temp;
+        HeapArray[i] = currentEntry;
+        while((i > 1) && (HeapArray[parentPosition(i)].getKey() < HeapArray[i].getKey())){
+            Entry<T> temp = HeapArray[i];
+            HeapArray[i] = HeapArray[parentPosition(i)];
+            HeapArray[parentPosition(i)] = temp;
             i = parentPosition(i);
         }
     }
@@ -109,22 +114,23 @@ public class BinaryHeapPriorityQueue<T> {
         Entry<T> newEntry = new Entry<T>(value, key);
         Entry<T> placeHolderEntry = new Entry<T>(value, (int) Double.NEGATIVE_INFINITY);
         heapSize++;
-        if(heapSize >= HeapArray.length){
-            Entry<T>[] NewHeapArray;
-            NewHeapArray = Arrays.copyOf(HeapArray, (HeapArray.length*2));
-            HeapArray = NewHeapArray;
-        }
+        //current version of the Queue does not support expansion but it easily could
+//        if(heapSize >= HeapArray.length){
+//            Entry<T>[] NewHeapArray;
+//            NewHeapArray = Arrays.copyOf(HeapArray, (HeapArray.length*2));
+//            HeapArray = NewHeapArray;
+//        }
         HeapArray[heapSize] = placeHolderEntry;
-        heapIncreaseKey(HeapArray, heapSize, newEntry);
+        heapIncreaseKey(heapSize, newEntry);
     }
 
-    public int parentPosition(int i) {
+    private int parentPosition(int i) {
         return i/2;
     }
-    public int childLeft(int i) {
+    private int childLeft(int i) {
         return 2*i;
     }
-    public int childRight(int i) {
+    private int childRight(int i) {
         return (2*i) + 1;
     }
     public Entry[] getHeapArray() {
@@ -159,37 +165,30 @@ public class BinaryHeapPriorityQueue<T> {
         public void setKey(int key) {
             this.key = key;
         }
-
-        public String toString() {
-            return "value = " + this.getValue() + ", key = " + this.getKey();
-        }
     }
-
 
     public static void main(String[] args) {
-//        BinaryHeapPriorityQueue newQueue = new BinaryHeapPriorityQueue();
-//        newQueue.heapInsert("2", 2000);
-//        newQueue.heapInsert("3", 3);
-//        newQueue.heapInsert("8", 8);
-//        newQueue.heapInsert("4", 4);
-//        newQueue.heapInsert("20", 20);
-//        newQueue.heapInsert("40", 40);
-//        newQueue.heapInsert("84", 84);
-//        newQueue.heapInsert("421", 421);
-//        newQueue.heapInsert("22", 22);
-//        newQueue.heapInsert("80", 80);
-//        for (int j = 1; j <= 10; j++) {
-//            for (int i = 1; i <= newQueue.getHeapSize(); i++) {
-//                System.out.print(newQueue.HeapArray[i].getValue() + " ");
-//            }
-//            System.out.println("\n" + newQueue.heapExtractMax().getValue());
-//        }
-//        System.out.println(Math.pow(2, Math.ceil(((Math.log(32))/2))));
-//        System.out.println(Math.floor(((Math.log(32))/2)));
-//        int u = (int) Math.ceil(Math.sqrt(32));
-//        System.out.println(u);
-        System.out.println((Integer) null);
+        BinaryHeapPriorityQueue newQueue = new BinaryHeapPriorityQueue((int) Math.pow(2, (2*3+1)));
+        newQueue.heapInsert(70, 70);
+        newQueue.heapInsert(80, 80);
+        newQueue.heapInsert(90, 90);
+        newQueue.heapInsert(100, 100);
+        newQueue.heapInsert(110, 110);
+        newQueue.heapInsert(120, 120);
+        newQueue.heapInsert(10, 10);
+        newQueue.heapInsert(20, 20);
+        newQueue.heapInsert(30, 30);
+        newQueue.heapInsert(40, 40);
+        newQueue.heapInsert(50, 50);
+        newQueue.heapInsert(60, 60);
+        for (int j = 1; j <= 12; j++) {
+            newQueue.IncreaseKey(50, 190);
+            for (int i = 1; i <= newQueue.getHeapSize(); i++) {
 
+                System.out.print(newQueue.HeapArray[i].getKey() + " ");
+            }
+
+            System.out.println("\n" + newQueue.heapExtractMax().getKey());
+        }
     }
-
 }
