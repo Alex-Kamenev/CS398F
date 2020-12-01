@@ -1,4 +1,4 @@
-package com.akamenev.assignment1;
+package com.akamenev.assignment2;
 /*************************************************************************
  *
  *  Pace University

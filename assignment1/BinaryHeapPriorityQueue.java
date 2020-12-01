@@ -43,20 +43,15 @@ public class BinaryHeapPriorityQueue<T> {
     public BinaryHeapPriorityQueue() {
         HeapArray = new Entry[DEF_SIZE];
     }
-
     public BinaryHeapPriorityQueue(int size) {
         HeapArray = new Entry[size];
     }
-
     public void maxHeapify( Entry<T>[] array, int i) {
         int left = childLeft(i);
         int right = childRight(i);
-        int largest;
+        int largest = i;
         if ((left <= heapSize) && (array[left].getKey() > array[i].getKey())) {
             largest = left;
-        }
-        else {
-            largest = i;
         }
         if ((right <= heapSize) && (array[right].getKey() > array[largest].getKey())){
             largest = right;
@@ -68,7 +63,6 @@ public class BinaryHeapPriorityQueue<T> {
             maxHeapify(array, largest);
         }
     }
-
     public T heapMaximum() {
         if (heapSize > 0) {
             return (T) HeapArray[1].getValue();
@@ -76,7 +70,6 @@ public class BinaryHeapPriorityQueue<T> {
             throw new ArithmeticException("Error Underflow");
         }
     }
-
     public Entry<T> heapExtractMax() {
         if(heapSize < 1) {
             throw new ArithmeticException("Error Underflow");
@@ -87,8 +80,7 @@ public class BinaryHeapPriorityQueue<T> {
         maxHeapify(HeapArray, 1);
         return max;
     }
-
-    public void IncreaseKey(T value, int key){
+    public void increaseKey(T value, int key){
         int min = 1;
         int max = heapSize;
         int range = (max - min) + 1;
@@ -96,42 +88,36 @@ public class BinaryHeapPriorityQueue<T> {
         Entry<T> currentEntry = new Entry<>(value, key);
         heapIncreaseKey(positionInArray ,currentEntry);
     }
-
     public void heapIncreaseKey(int i,Entry<T> currentEntry) {
         if (currentEntry.getKey() < HeapArray[i].getKey()) {
+//            System.out.println("Operation can not be complited");
             throw new ArithmeticException("New key is smaller than current key.");
         }
-        HeapArray[i] = currentEntry;
-        while((i > 1) && (HeapArray[parentPosition(i)].getKey() < HeapArray[i].getKey())){
-            Entry<T> temp = HeapArray[i];
-            HeapArray[i] = HeapArray[parentPosition(i)];
-            HeapArray[parentPosition(i)] = temp;
-            i = parentPosition(i);
+        else {
+            HeapArray[i] = currentEntry;
+            while ((i > 1) && (HeapArray[parentPosition(i)].getKey() < HeapArray[i].getKey())) {
+                Entry<T> temp = HeapArray[i];
+                HeapArray[i] = HeapArray[parentPosition(i)];
+                HeapArray[parentPosition(i)] = temp;
+                i = parentPosition(i);
+            }
         }
     }
-
     public void heapInsert(T value, int key) {
         Entry<T> newEntry = new Entry<T>(value, key);
         Entry<T> placeHolderEntry = new Entry<T>(value, (int) Double.NEGATIVE_INFINITY);
         heapSize++;
-        //current version of the Queue does not support expansion but it easily could
-//        if(heapSize >= HeapArray.length){
-//            Entry<T>[] NewHeapArray;
-//            NewHeapArray = Arrays.copyOf(HeapArray, (HeapArray.length*2));
-//            HeapArray = NewHeapArray;
-//        }
         HeapArray[heapSize] = placeHolderEntry;
         heapIncreaseKey(heapSize, newEntry);
     }
-
     private int parentPosition(int i) {
-        return i/2;
+        return (i>>1);
     }
     private int childLeft(int i) {
-        return 2*i;
+        return (i<<1);
     }
     private int childRight(int i) {
-        return (2*i) + 1;
+        return ((i<<1) + 1);
     }
     public Entry[] getHeapArray() {
         return HeapArray;
@@ -139,7 +125,6 @@ public class BinaryHeapPriorityQueue<T> {
     public int getHeapSize(){
         return heapSize;
     }
-
     static class Entry<T> {
 
         private T value;
@@ -166,7 +151,6 @@ public class BinaryHeapPriorityQueue<T> {
             this.key = key;
         }
     }
-
     public static void main(String[] args) {
         BinaryHeapPriorityQueue newQueue = new BinaryHeapPriorityQueue((int) Math.pow(2, (2*3+1)));
         newQueue.heapInsert(70, 70);
@@ -181,8 +165,28 @@ public class BinaryHeapPriorityQueue<T> {
         newQueue.heapInsert(40, 40);
         newQueue.heapInsert(50, 50);
         newQueue.heapInsert(60, 60);
-        for (int j = 1; j <= 12; j++) {
-            newQueue.IncreaseKey(50, 190);
+        newQueue.heapInsert(7, 7);
+        newQueue.heapInsert(8, 8);
+        newQueue.heapInsert(9, 9);
+        newQueue.heapInsert(1, 1);
+        newQueue.heapInsert(11, 11);
+        newQueue.heapInsert(12, 12);
+        newQueue.heapInsert(1, 1);
+        newQueue.heapInsert(2, 2);
+        newQueue.heapInsert(3, 3);
+        newQueue.heapInsert(4, 4);
+        newQueue.heapInsert(5, 5);
+        newQueue.heapInsert(6, 6);
+        int end = newQueue.getHeapSize();
+        for (int j = 1; j <= end; j++) {
+            int value = (int) Math.random();
+            int key = (int) ((Math.random() * (20 - 0)) + 0);
+            try {
+                newQueue.increaseKey(value, key);
+            }
+            catch (ArithmeticException e) {
+                System.out.println("Unable to increase key as new key is smaller.");
+            }
             for (int i = 1; i <= newQueue.getHeapSize(); i++) {
 
                 System.out.print(newQueue.HeapArray[i].getKey() + " ");
