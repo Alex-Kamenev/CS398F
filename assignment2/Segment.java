@@ -14,6 +14,7 @@ public class Segment implements Comparable<Segment>{
 
     @Override
     public int compareTo(Segment o) {
+        if (this == o) return 0;
         int xNot = IntersectAny.getXnot();
         Segment b = o;
         Segment a = this;

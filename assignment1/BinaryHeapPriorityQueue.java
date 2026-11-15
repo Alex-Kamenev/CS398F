@@ -41,10 +41,11 @@ public class BinaryHeapPriorityQueue<T> {
     Entry[] HeapArray;
 
     public BinaryHeapPriorityQueue() {
-        HeapArray = new Entry[DEF_SIZE];
+        HeapArray = new Entry[DEF_SIZE + 1];
     }
     public BinaryHeapPriorityQueue(int size) {
-        HeapArray = new Entry[size];
+        if (size < 1) throw new IllegalArgumentException("Capacity must be positive");
+        HeapArray = new Entry[size + 1];
     }
     public void maxHeapify( Entry<T>[] array, int i) {
         int left = childLeft(i);
@@ -76,6 +77,7 @@ public class BinaryHeapPriorityQueue<T> {
         }
         Entry<T> max = HeapArray[1];
         HeapArray[1] = HeapArray[heapSize];
+        HeapArray[heapSize] = null;
         heapSize--;
         maxHeapify(HeapArray, 1);
         return max;
@@ -89,6 +91,7 @@ public class BinaryHeapPriorityQueue<T> {
         heapIncreaseKey(positionInArray ,currentEntry);
     }
     public void heapIncreaseKey(int i,Entry<T> currentEntry) {
+        if (i < 1 || i > heapSize) throw new IndexOutOfBoundsException("No entry at heap index " + i);
         if (currentEntry.getKey() < HeapArray[i].getKey()) {
 //            System.out.println("Operation can not be complited");
             throw new ArithmeticException("New key is smaller than current key.");
@@ -104,6 +107,9 @@ public class BinaryHeapPriorityQueue<T> {
         }
     }
     public void heapInsert(T value, int key) {
+        if (heapSize + 1 == HeapArray.length) {
+            HeapArray = java.util.Arrays.copyOf(HeapArray, HeapArray.length * 2);
+        }
         Entry<T> newEntry = new Entry<T>(value, key);
         Entry<T> placeHolderEntry = new Entry<T>(value, (int) Double.NEGATIVE_INFINITY);
         heapSize++;
