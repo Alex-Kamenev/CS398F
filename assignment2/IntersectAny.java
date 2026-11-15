@@ -59,16 +59,14 @@ public class IntersectAny {
 
             if(queue[i].end == false){
                 preOrder.put(queue[i].s, queue[i].s);
-                System.out.println(preOrder.higherEntry(queue[i].s));
-                System.out.println(queue[i].s);
                 if(preOrder.higherEntry(queue[i].s) != null){
                     if((Intersect.segmentIntersect(preOrder.higherEntry(queue[i].s).getValue().point1,
                             preOrder.higherEntry(queue[i].s).getValue().point2, queue[i].s.point1, queue[i].s.point2))) {
                         return true;
                     }
                 }
-                if(queue[i].s != (preOrder.lowerEntry(queue[i].s).getValue())){
-                    if ((preOrder.lowerEntry(queue[i].s) != null)) {
+                if(preOrder.lowerEntry(queue[i].s) != null){
+                    if (queue[i].s != preOrder.lowerEntry(queue[i].s).getValue()) {
                         if ((Intersect.segmentIntersect(preOrder.lowerEntry(queue[i].s).getValue().point1,
                                 preOrder.lowerEntry(queue[i].s).getValue().point2, queue[i].s.point1, queue[i].s.point2))) {
                             return true;

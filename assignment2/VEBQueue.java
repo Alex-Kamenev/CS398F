@@ -81,6 +81,7 @@ public class VEBQueue<T> {
     }
     //Constructor
     public VEBQueue(int size) {
+        if (size < 2 || (size & (size - 1)) != 0) throw new IllegalArgumentException("Universe must be a power of two, at least 2");
         u = size;
         min = -1;
         max = -1;
@@ -114,7 +115,7 @@ public class VEBQueue<T> {
     //time but still O(lglgu)
     //only changes priority of the new priority doesn't exist already
     public void changePriority(VEBQueue<T> vEB, int oldKey, int newKey){
-        if(!(vEB.vEBMember(vEB, newKey)) && (newKey > -1 && newKey < vEB.u)) {
+        if(vEB.vEBMember(vEB, oldKey) && !(vEB.vEBMember(vEB, newKey)) && (newKey > -1 && newKey < vEB.u)) {
             T data = vEB.getData(vEB, oldKey);
             vEB.vEBDelete(vEB, oldKey);
             vEB.vEBInsert(vEB, newKey, data);
@@ -123,6 +124,7 @@ public class VEBQueue<T> {
 
     //Get Max and Remove it
     public T extractMax(VEBQueue<T> vEB){
+        if (vEB.min == -1) throw new java.util.NoSuchElementException("Empty queue");
         int key = vEBmax(vEB);
         T result = getData(vEB, key);
         vEBDelete(vEB,key);
@@ -131,6 +133,7 @@ public class VEBQueue<T> {
 
     //Get Min and Remove it
     public T extractMin(VEBQueue<T> vEB){
+        if (vEB.min == -1) throw new java.util.NoSuchElementException("Empty queue");
         int key = vEBmin(vEB);
         T result = getData(vEB, key);
         vEBDelete(vEB,key);
@@ -159,6 +162,7 @@ public class VEBQueue<T> {
 
     //Check if a given priority/key is present
     public boolean vEBMember(VEBQueue<T> vEB, int x) {
+        if (x < 0 || x >= vEB.u || vEB.min == -1) return false;
         if((x == vEB.min) || (x == vEB.max)){
             return true;
         }
@@ -174,6 +178,7 @@ public class VEBQueue<T> {
 
     //Return data associated with a given priority
     public T getData(VEBQueue<T> vEB, int x){
+        if (x < 0 || x >= vEB.u || vEB.min == -1) return null;
         if(x == vEB.min){
             return vEB.min_data;
         }
@@ -181,12 +186,15 @@ public class VEBQueue<T> {
             return vEB.max_data;
         }
         else {
+            if (vEB.u == 2) return null;
             return getData(vEB.cluster[vEB.high(x)], vEB.low(x));
         }
     }
 
     //Find the element after a given one - return the priority not the element it self
     public int vEBSuccessor(VEBQueue<T> vEB, int x){
+        if (vEB.min == -1 || x >= vEB.u - 1) return -1;
+        if (x < 0) return vEB.min;
         if (vEB.u == 2){
             if((x == 0) && (vEB.max == 1)){
                 return 1;
@@ -212,7 +220,7 @@ public class VEBQueue<T> {
                 }
                 else {
                     offset = vEBmin(vEB.cluster[sucCluster]);
-                    return vEBIndex(sucCluster, offset);
+                    return vEB.vEBIndex(sucCluster, offset);
                 }
             }
         }
@@ -220,6 +228,8 @@ public class VEBQueue<T> {
 
     //Find the element before a given one - return the priority not the element it self
     public int vEBPredecessor(VEBQueue<T> vEB, int x){
+        if (vEB.min == -1 || x <= 0) return -1;
+        if (x >= vEB.u) return vEB.max;
         if (vEB.u == 2){
             if((x == 1) && (vEB.min == 0)){
                 return 0;
@@ -236,7 +246,7 @@ public class VEBQueue<T> {
             int offset;
             if((minInCluster != -1) && vEB.low(x) > minInCluster){
                 offset = vEBPredecessor(vEB.cluster[vEB.high(x)], vEB.low(x));
-                return vEBIndex(vEB.high(x), offset);
+                return vEB.vEBIndex(vEB.high(x), offset);
             }
             else {
                 int preCluster = vEBPredecessor(vEB.summary, vEB.high(x));
@@ -250,7 +260,7 @@ public class VEBQueue<T> {
                 }
                 else {
                     offset = vEBmax(vEB.cluster[preCluster]);
-                    return vEBIndex(preCluster, offset);
+                    return vEB.vEBIndex(preCluster, offset);
                 }
             }
         }
@@ -266,6 +276,12 @@ public class VEBQueue<T> {
 
     // Insert element in vEB
     public void vEBInsert(VEBQueue<T> vEB, int x, T data) {
+        if (x < 0 || x >= vEB.u) throw new IllegalArgumentException("Key outside universe");
+        if (vEBMember(vEB, x)) throw new IllegalArgumentException("Duplicate key");
+        insertUnchecked(vEB, x, data);
+    }
+
+    private void insertUnchecked(VEBQueue<T> vEB, int x, T data) {
         if (vEB.min == -1){
             baseInsert(vEB, x, data);
         } else {
@@ -279,13 +295,13 @@ public class VEBQueue<T> {
             }
             if (vEB.u > 2){
                 if (vEBmin(vEB.cluster[vEB.high(x)]) == -1) {
-                    vEBInsert(vEB.summary, vEB.high(x), data);
+                    insertUnchecked(vEB.summary, vEB.high(x), data);
 //                    vEB.cluster[vEB.high(x)].min = vEB.low(x);
 //                    vEB.cluster[vEB.high(x)].max = vEB.low(x);
                     baseInsert(vEB.cluster[vEB.high(x)], vEB.low(x), data);
 
                 } else {
-                    vEBInsert(vEB.cluster[vEB.high(x)], vEB.low(x), data);
+                    insertUnchecked(vEB.cluster[vEB.high(x)], vEB.low(x), data);
                 }
             }
             if (x > vEB.max){
@@ -298,6 +314,11 @@ public class VEBQueue<T> {
 
     //Delete operation
     public void vEBDelete(VEBQueue<T> vEB, int x) {
+        if (!vEBMember(vEB, x)) return;
+        deleteUnchecked(vEB, x);
+    }
+
+    private void deleteUnchecked(VEBQueue<T> vEB, int x) {
         if (vEB.min == vEB.max) {
             vEB.min = -1;
             vEB.max = -1;
@@ -320,10 +341,10 @@ public class VEBQueue<T> {
                 vEB.min = x;
                 vEB.min_data = vEB.cluster[firstCluster].min_data;
             }
-            vEBDelete(vEB.cluster[vEB.high(x)], vEB.low(x));
+            deleteUnchecked(vEB.cluster[vEB.high(x)], vEB.low(x));
 
             if (vEBmin(vEB.cluster[vEB.high(x)]) == -1) {
-                vEBDelete(vEB.summary, vEB.high(x));
+                deleteUnchecked(vEB.summary, vEB.high(x));
                 if (x == vEB.max) {
                     int summaryMax = vEBmax(vEB.summary);
                     if (summaryMax == -1) {
